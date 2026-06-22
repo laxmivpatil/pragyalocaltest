@@ -96,6 +96,7 @@ public class EmailService1 {
      @Async
      public CompletableFuture<Boolean> sendEmail(String recipientEmail, String emailSubject, String emailBody) {
          try {
+        	 System.out.println(recipientEmail);
              // Create a MimeMessage
              MimeMessage message = emailSender.createMimeMessage();
              MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -313,9 +314,38 @@ public class EmailService1 {
 	 }
 
 	 
+
+
+@Async
+public void sendCareerEmailWithResumeAsync(
+        String to,
+        String subject,
+        String body,
+        byte[] resumeBytes,
+        String resumeFileName) {
+
+    try {
+        MimeMessage message = emailSender.createMimeMessage();
+
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom("info@pragyagirlsschool.com");  // Sender's email
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(body, true);
+
+        helper.addAttachment(
+                resumeFileName,
+                new ByteArrayResource(resumeBytes)
+        );
+        System.out.println(helper.toString());
+        emailSender.send(message);
+        System.out.println("mail send"+to);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 }
-
-
+}
 /*
 // Add all attachments
 if (birthCertificate != null && !birthCertificate.isEmpty()) {

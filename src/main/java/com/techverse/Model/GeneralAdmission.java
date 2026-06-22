@@ -1,5 +1,9 @@
 package com.techverse.Model;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,7 +27,7 @@ public class GeneralAdmission {
     private String motherName;
     private String mobileNo;
     private String email;
-    
+    private String boardingType;
     
     private String type;
     
@@ -42,11 +46,102 @@ public class GeneralAdmission {
     
     
     
+    @Column(name = "razorpay_order_id")
+    private String razorpayOrderId;
+
+
+	@Column(name = "razorpay_payment_id")
+    private String razorpayPaymentId;
+
+    @Column(name = "razorpay_signature")
+    private String razorpaySignature;
+
+    @Column(name = "admission_fee")
+    private BigDecimal admissionFee;
+
+    @Column(name = "registration_fee")
+    private BigDecimal registrationFee;
+
+    @Column(name = "total_fee")
+    private BigDecimal totalFee;
+
+    @Column(name = "payment_status")
+    private String paymentStatus; // PAID, PENDING, FAILED
+
+    @Column(name = "payment_date")
+    private Instant paymentDate;
     
+    
+    public GeneralAdmission(
+            String firstName,
+            String lastName,
+            String gender,
+            String dateOfBirth,
+            String admissionClass,
+            String preferredSubject,
+            String boardingType,
+            String fatherName,
+            String motherName,
+            String mobileNo,
+            String email,
+            String type,
+            String pen,
+            String birthCertificate,
+            String lastResult,
+            String parentAadhar,
+            String studentAadhar,
+            String sssmid,
+            String bankDoc,
+            String cast,
+            String transferCertificate,
+            String profile,
+
+            String razorpayOrderId,
+            String razorpayPaymentId,
+            String razorpaySignature,
+            BigDecimal admissionFee,
+            BigDecimal registrationFee,
+            BigDecimal totalFee,
+            String paymentStatus,
+            Instant paymentDate
+    ) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.dateOfBirth = dateOfBirth;
+        this.admissionClass = admissionClass;
+        this.preferredSubject = preferredSubject;
+        this.boardingType = boardingType;
+        this.fatherName = fatherName;
+        this.motherName = motherName;
+        this.mobileNo = mobileNo;
+        this.email = email;
+        this.type = type;
+        this.PEN = pen;
+
+        this.birthCertificate = birthCertificate;
+        this.lastResult = lastResult;
+        this.parentAadhar = parentAadhar;
+        this.studentAadhar = studentAadhar;
+        this.SSSMID = sssmid;
+        this.bankDoc = bankDoc;
+        this.cast = cast;
+        this.transferCertificate = transferCertificate;
+        this.profile = profile;
+
+        this.razorpayOrderId = razorpayOrderId;
+        this.razorpayPaymentId = razorpayPaymentId;
+        this.razorpaySignature = razorpaySignature;
+        this.admissionFee = admissionFee;
+        this.registrationFee = registrationFee;
+        this.totalFee = totalFee;
+        this.paymentStatus = paymentStatus;
+        this.paymentDate = paymentDate;
+    }
     
     
     public GeneralAdmission(Long id, String firstName, String lastName, String gender, String dateOfBirth,
-			String admissionClass,String preferredSubject, String fatherName, String motherName, String mobileNo, String email, String type,
+			String admissionClass,String preferredSubject, String boardingType,String fatherName, String motherName, String mobileNo, String email, String type,
 			String pEN, String birthCertificate, String lastResult, String parentAadhar, String studentAadhar,
 			String sSSMID, String bankDoc, String cast, String transferCertificate, String profile) {
 		super();
@@ -58,6 +153,7 @@ public class GeneralAdmission {
 		this.admissionClass = admissionClass;
 
 		this.preferredSubject= preferredSubject;
+		this.boardingType=boardingType;
 		this.fatherName = fatherName;
 		this.motherName = motherName;
 		this.mobileNo = mobileNo;
@@ -76,7 +172,7 @@ public class GeneralAdmission {
 	
 	}
     public GeneralAdmission( String firstName, String lastName, String gender, String dateOfBirth,
-			String admissionClass,String preferredSubject, String fatherName, String motherName, String mobileNo, String email, String type,
+			String admissionClass,String preferredSubject,String boardingType, String fatherName, String motherName, String mobileNo, String email, String type,
 			String pEN, String birthCertificate, String lastResult, String parentAadhar, String studentAadhar,
 			String sSSMID, String bankDoc, String cast, String transferCertificate, String profile) {
 		super();
@@ -87,6 +183,8 @@ public class GeneralAdmission {
 		this.dateOfBirth = dateOfBirth;
 		this.admissionClass = admissionClass;
 		this.preferredSubject= preferredSubject;
+		this.boardingType=boardingType;
+
 		this.fatherName = fatherName;
 		this.motherName = motherName;
 		this.mobileNo = mobileNo;
@@ -112,6 +210,12 @@ public class GeneralAdmission {
 	
 	
 	
+	public String getBoardingType() {
+		return boardingType;
+	}
+	public void setBoardingType(String boardingType) {
+		this.boardingType = boardingType;
+	}
 	public String getPreferredSubject() {
 		return preferredSubject;
 	}
@@ -269,6 +373,83 @@ public class GeneralAdmission {
 
     
     
-    
+    public String getRazorpayOrderId() {
+		return razorpayOrderId;
+	}
+
+
+	public void setRazorpayOrderId(String razorpayOrderId) {
+		this.razorpayOrderId = razorpayOrderId;
+	}
+
+
+	public String getRazorpayPaymentId() {
+		return razorpayPaymentId;
+	}
+
+
+	public void setRazorpayPaymentId(String razorpayPaymentId) {
+		this.razorpayPaymentId = razorpayPaymentId;
+	}
+
+
+	public String getRazorpaySignature() {
+		return razorpaySignature;
+	}
+
+
+	public void setRazorpaySignature(String razorpaySignature) {
+		this.razorpaySignature = razorpaySignature;
+	}
+
+
+	public BigDecimal getAdmissionFee() {
+		return admissionFee;
+	}
+
+
+	public void setAdmissionFee(BigDecimal admissionFee) {
+		this.admissionFee = admissionFee;
+	}
+
+
+	public BigDecimal getRegistrationFee() {
+		return registrationFee;
+	}
+
+
+	public void setRegistrationFee(BigDecimal registrationFee) {
+		this.registrationFee = registrationFee;
+	}
+
+
+	public BigDecimal getTotalFee() {
+		return totalFee;
+	}
+
+
+	public void setTotalFee(BigDecimal totalFee) {
+		this.totalFee = totalFee;
+	}
+
+
+	public String getPaymentStatus() {
+		return paymentStatus;
+	}
+
+
+	public void setPaymentStatus(String paymentStatus) {
+		this.paymentStatus = paymentStatus;
+	}
+
+
+	public Instant getPaymentDate() {
+		return paymentDate;
+	}
+
+
+	public void setPaymentDate(Instant paymentDate) {
+		this.paymentDate = paymentDate;
+	}
     
 }
