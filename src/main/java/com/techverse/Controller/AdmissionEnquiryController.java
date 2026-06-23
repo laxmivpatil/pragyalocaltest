@@ -77,7 +77,7 @@ public class AdmissionEnquiryController {
                 body
         );
 */
-        return apiResponseService.apiResponseService(true, "OTP has been sent to your email address");
+        return apiResponseService.apiResponseService(true, "OTP has been sent to your email address "+otp);
         
         
     }
