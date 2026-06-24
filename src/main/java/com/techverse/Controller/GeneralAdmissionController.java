@@ -497,7 +497,7 @@ public class GeneralAdmissionController {
 	
 	*/
 	
-	
+	/*
 	@PostMapping("/create-admission")
 	public ResponseEntity<?> createAdmissionOrder(
 	        @RequestPart(value = "firstName", required = false) String firstName,
@@ -626,7 +626,198 @@ public class GeneralAdmissionController {
 	}
 	
 	 
+	*/
 	
+	@PostMapping("/create-admission")
+	public ResponseEntity<?> createAdmissionOrder(
+	        @RequestPart(value = "firstName", required = false) String firstName,
+	        @RequestPart(value = "lastName", required = false) String lastName,
+	        @RequestPart(value = "gender", required = false) String gender,
+	        @RequestPart(value = "dateOfBirth", required = false) String dateOfBirth,
+	        @RequestPart(value = "admissionClass", required = false) String admissionClass,
+	        @RequestPart(value = "fatherName", required = false) String fatherName,
+	        @RequestPart(value = "motherName", required = false) String motherName,
+	        @RequestPart(value = "mobileNo", required = false) String mobileNo,
+	        @RequestPart(value = "email", required = false) String email,
+	        @RequestPart(value = "type", required = false) String type,
+	        @RequestPart(value = "pen", required = false) String pen,
+	        @RequestPart(value = "boardingType", required = false) String boardingType,
+	        @RequestPart(value = "preferredSubject", required = false) String preferredSubject,
+
+	        @RequestPart(value = "admissionFee", required = false) String admissionFee,
+	        @RequestPart(value = "registrationFee", required = false) String registrationFee,
+	        @RequestPart(value = "totalFee", required = false) String totalFee,
+
+	        @RequestPart(value = "birthCertificate", required = false) MultipartFile birthCertificate,
+	        @RequestPart(value = "lastResult", required = false) MultipartFile lastResult,
+	        @RequestPart(value = "parentAadhar", required = false) MultipartFile parentAadhar,
+	        @RequestPart(value = "studentAadhar", required = false) MultipartFile studentAadhar,
+	        @RequestPart(value = "bankDoc", required = false) MultipartFile bankDoc,
+	        @RequestPart(value = "cast", required = false) MultipartFile cast,
+	        @RequestPart(value = "transferCertificate", required = false) MultipartFile transferCertificate,
+	        @RequestPart(value = "profile", required = false) MultipartFile profile,
+	        @RequestPart(value = "sssmid", required = false) MultipartFile sssmid) {
+
+	    try {
+	        boolean isGeneralAdmission = "general".equalsIgnoreCase(type);
+
+	        BigDecimal admissionFeeAmount = parseAmount(admissionFee);
+	        BigDecimal registrationFeeAmount = parseAmount(registrationFee);
+	        BigDecimal totalFeeAmount = parseAmount(totalFee);
+
+	        /*
+	         * GENERAL ADMISSION
+	         * No payment, no Razorpay order.
+	         */
+	        if (isGeneralAdmission) {
+
+	            GeneralAdmission createdAdmission = new GeneralAdmission(
+	                    firstName,
+	                    lastName,
+	                    gender,
+	                    dateOfBirth,
+	                    admissionClass,
+	                    preferredSubject,
+	                    boardingType,
+	                    fatherName,
+	                    motherName,
+	                    mobileNo,
+	                    email,
+	                    type,
+	                    "",
+	                    "",
+	                    "",
+	                    "",
+	                    "",
+	                    "",
+	                    "",
+	                    "",
+	                    "",
+	                    "",
+
+	                    null,
+	                    null,
+	                    null,
+	                    BigDecimal.ZERO,
+	                    BigDecimal.ZERO,
+	                    BigDecimal.ZERO,
+	                    "NOT_REQUIRED",
+	                    null
+	            );
+
+	            generalAdmissionRepository.save(createdAdmission);
+
+	            Map<String, Object> variables = new HashMap<>();
+	            variables.put("firstName", firstName);
+	            variables.put("lastName", lastName);
+	            variables.put("dateOfBirth", dateOfBirth);
+	            variables.put("admissionClass", admissionClass);
+	            variables.put("fatherName", fatherName);
+	            variables.put("motherName", motherName);
+	            variables.put("mobileNo", mobileNo);
+	            variables.put("email", email);
+	            variables.put("preferredSubject", preferredSubject);
+	            variables.put("boardingType", boardingType);
+	            variables.put("paymentStatus", "NOT_REQUIRED");
+
+	            String schoolBody = emailService1.generateEmailContent("schoolgeneraladmission", variables);
+	            String userBody = emailService1.generateEmailContent("usergeneraladmission", variables);
+
+	          //  sendEmailAsync(schoolEmail, "New General Admission Enquiry", schoolBody);
+	          //  sendEmailAsync(email, "Your Admission Enquiry", userBody);
+
+	            Map<String, Object> data = new HashMap<>();
+	            data.put("admissionId", createdAdmission.getId());
+	            data.put("paymentRequired", false);
+	            data.put("paymentStatus", "NOT_REQUIRED");
+
+	            return apiResponse(true, "General admission submitted successfully", data);
+	        }
+
+	        /*
+	         * ADVANCE ADMISSION
+	         * Payment required, Razorpay order created.
+	         */
+	        if (totalFeeAmount.compareTo(BigDecimal.ZERO) <= 0) {
+	            return apiResponse(false, "Total fee must be greater than zero");
+	        }
+
+	        String birthC = uploadIfPresent(birthCertificate, "Birth_Certificate");
+	        String lastR = uploadIfPresent(lastResult, "Last_Year_Result");
+	        String parentA = uploadIfPresent(parentAadhar, "Parent_Aadhar");
+	        String studentA = uploadIfPresent(studentAadhar, "Student_Aadhar");
+	        String bankD = uploadIfPresent(bankDoc, "Bank_Doc");
+	        String castC = uploadIfPresent(cast, "Cast");
+	        String transferC = uploadIfPresent(transferCertificate, "Transfer_Certificate");
+	        String profileP = uploadIfPresent(profile, "Profile");
+	        String sssmi = uploadIfPresent(sssmid, "SSSMID");
+
+	        GeneralAdmission createdAdmission = new GeneralAdmission(
+	                firstName,
+	                lastName,
+	                gender,
+	                dateOfBirth,
+	                admissionClass,
+	                preferredSubject,
+	                boardingType,
+	                fatherName,
+	                motherName,
+	                mobileNo,
+	                email,
+	                type,
+	                pen,
+	                birthC,
+	                lastR,
+	                parentA,
+	                studentA,
+	                sssmi,
+	                bankD,
+	                castC,
+	                transferC,
+	                profileP,
+
+	                null,
+	                null,
+	                null,
+	                admissionFeeAmount,
+	                registrationFeeAmount,
+	                totalFeeAmount,
+	                "PENDING",
+	                null
+	        );
+
+	        generalAdmissionRepository.save(createdAdmission);
+
+	        String receipt = "admission_" + createdAdmission.getId();
+
+	        Order razorpayOrder = razorpayService.createOrder(totalFeeAmount, receipt);
+
+	        String razorpayOrderId = razorpayOrder.get("id");
+	        Integer amountInPaise = razorpayOrder.get("amount");
+	        String currency = razorpayOrder.get("currency");
+
+	        createdAdmission.setRazorpayOrderId(razorpayOrderId);
+	        generalAdmissionRepository.save(createdAdmission);
+
+	        Map<String, Object> data = new HashMap<>();
+	        data.put("admissionId", createdAdmission.getId());
+	        data.put("razorpayOrderId", razorpayOrderId);
+	        data.put("amount", amountInPaise);
+	        data.put("currency", currency);
+	        data.put("paymentRequired", true);
+	        data.put("paymentStatus", "PENDING");
+	        data.put("mobileNo", mobileNo);
+
+	        // Add this if frontend needs Razorpay key from backend
+	        // data.put("key", razorpayService.getRazorpayKeyId());
+
+	        return apiResponse(true, "Advance admission saved and Razorpay order created", data);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return apiResponse(false, "Something went wrong: " + e.getMessage());
+	    }
+	}
 	
 	@PostMapping("/payment-success")
 	public ResponseEntity<?> admissionPaymentSuccess(@RequestBody Map<String, String> request) {
@@ -719,18 +910,7 @@ public class GeneralAdmissionController {
 	    variables.put("paymentDate", admission.getPaymentDate());
 	    variables.put("razorpayPaymentId", admission.getRazorpayPaymentId());
 	    variables.put("razorpayOrderId", admission.getRazorpayOrderId());
-
-	    if ("general".equalsIgnoreCase(admission.getType())) {
-
-	        String schoolBody = emailService1.generateEmailContent("schoolgeneraladmission", variables);
-	        String userBody = emailService1.generateEmailContent("usergeneraladmission", variables);
-
-	    //    sendEmailAsync(schoolEmail, "New Admission Enquiry", schoolBody);
-	     //   sendEmailAsync(admission.getEmail(), "Your Admission Enquiry", userBody);
-
-	    } else {
-
-	        variables.put("pen", admission.getPEN());
+	    variables.put("pen", admission.getPEN());
 
 	        String schoolBody = emailService1.generateEmailContent("schooladvanceadmission", variables);
 	        String userBody = emailService1.generateEmailContent("useradvanceadmission", variables);
@@ -770,7 +950,7 @@ public class GeneralAdmissionController {
 
 	        sendEmailAsync(admission.getEmail(), "Your Admission Enquiry", userBody);
 	        */
-	    }
+	    
 	}
 	@Async("taskExecutor")
 	public void sendEmailAsync(String to, String subject, String body) {
