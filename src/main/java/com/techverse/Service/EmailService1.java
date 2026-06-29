@@ -387,7 +387,8 @@ public void sendCareerEmailWithResumeAsync(
         String to,
         String subject,
         String body,
-        byte[] resumeBytes,
+        EmailType type,
+        String resumeUrl,
         String resumeFileName) {
 
     try {
@@ -398,13 +399,14 @@ public void sendCareerEmailWithResumeAsync(
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(body, true);
-
+ 
         helper.addAttachment(
                 resumeFileName,
-                new ByteArrayResource(resumeBytes)
+                storageService.downloadFileFromAzure(resumeUrl,resumeFileName)
         );
+        addInlineImages(helper, type);
         System.out.println(helper.toString());
-        emailSender.send(message);
+       emailSender.send(message);
         System.out.println("mail send"+to);
 
     } catch (Exception e) {

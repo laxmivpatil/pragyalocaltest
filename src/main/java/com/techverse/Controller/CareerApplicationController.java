@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -62,11 +63,7 @@ public class CareerApplicationController {
 
             }
 
-            if (resume == null || resume.isEmpty()) {
-                return apiResponseService.apiResponseService(false, "Resume file is required");
-
-          
-            }
+           
 /*
             String resumeUrl = "";
             String extension = getExtension(resume);
@@ -92,51 +89,55 @@ public class CareerApplicationController {
             );
 */
             
+         // Read bytes once — synchronously (unavoidable)
+            byte[] resumeBytes = resume.getBytes();
             String extension = getExtension(resume);
-            String resumeName = "Resume_" + fullName.replaceAll("\\s+", "_") + "_" + Instant.now().toEpochMilli();
+            String resumeName = "Resume_" + fullName.replaceAll("\\s+", "_") 
+                              + "_" + Instant.now().toEpochMilli();
 
-            // ✅ Save application first with placeholder URL
+            // Save to DB immediately with empty URL
             CareerApplication application = new CareerApplication(fullName, email, position, "");
             careerApplicationRepository.save(application);
 
-            // ✅ Upload async — don't block the response
-            byte[] resumeBytes = resume.getBytes(); // Read once before async
-            CompletableFuture.runAsync(() -> {
-                try {
-                    String resumeUrl = storageService.uploadFileOnAzure(resume, resumeName + "." + extension);
-                    // Update URL after upload
-                    application.setResume(resumeUrl);
-                    careerApplicationRepository.save(application);
-                } catch (Exception e) {
-                    System.err.println("Async upload failed: " + e.getMessage());
-                }
-            });
- 
+            // Prepare email content (fast — no network call)
             Map<String, Object> variables = new HashMap<>();
-
             variables.put("fullName", fullName);
             variables.put("email", email);
             variables.put("position", position);
 
             String schoolBody = emailService1.generateEmailContent("schoolcareerapplication", variables);
             String userBody = emailService1.generateEmailContent("usercareerapplication", variables);
-           //email to school for new application  change email to school email
-          /*  emailService1.sendCareerEmailWithResumeAsync(
-                    email,
-                    "New Career Application - " + position,
-                    schoolBody,
-                    resumeBytes,
-                    resumeName
-            );
-            //email to person
-            emailService1.sendEmail(
-                    email,
-                    "Your Career Application Has Been Received",
-                    userBody, EmailType.CAREER_USER
-            );
-            
-            */
-          return  apiResponseService.apiResponseService(true, "Career application Saved successfully",application);
+
+           
+            // ✅ Everything heavy runs in background
+            CompletableFuture.runAsync(() -> {
+                try {
+                	
+                     
+                    // Azure upload
+                	 String resumeUrl =	storageService.uploadFileOnAzure(
+                             resume, resumeName + "." + extension
+                         );
+                         application.setResume(resumeUrl);
+                         careerApplicationRepository.save(application);
+
+                    // Email to school with resume
+                 	System.out.println(resumeName);
+               // 	sendEmailResumeAsync(email, "New Career Application - " + position,
+                 //       schoolBody, EmailType.CAREER_SCHOOL, resumeUrl, fileNameFromUrl(resumeUrl, resumeName));
+                    
+
+                    // Email to user
+                //    sendEmailAsync(email, "Your Career Application Has Been Received",
+                  //      userBody, EmailType.CAREER_USER);
+
+                } catch (Exception e) {
+                    System.err.println("Background task failed: " + e.getMessage());
+                }
+            });
+
+            // ✅ Respond immediately — no waiting
+            return apiResponseService.apiResponseService(true, "Career application saved successfully", application);
       
         } catch (Exception e) {
             return ResponseEntity
@@ -147,6 +148,17 @@ public class CareerApplicationController {
 
     
     
+    
+    @Async("taskExecutor")
+  	public void sendEmailAsync(String to, String subject, String body, EmailType type) {
+
+  		emailService1.sendEmail(to, subject, body,type);
+  	}
+    @Async("taskExecutor")
+  	public void sendEmailResumeAsync(String to, String subject, String body, EmailType type,String resumeUrl,String resumename) {
+
+  		emailService1.sendCareerEmailWithResumeAsync(to, subject, body,type,resumeUrl,resumename);
+  	}
     private String getExtension(MultipartFile file) {
         String originalFileName = file.getOriginalFilename();
 
@@ -156,4 +168,24 @@ public class CareerApplicationController {
 
         return originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
     }
+    
+    private String fileNameFromUrl(String url, String defaultName) {
+	    if (url == null || url.trim().isEmpty()) {
+	        return defaultName;
+	    }
+
+	    try {
+	        String cleanUrl = url.split("\\?")[0];
+	        String fileName = cleanUrl.substring(cleanUrl.lastIndexOf("/") + 1);
+
+	        if (fileName == null || fileName.trim().isEmpty()) {
+	            return defaultName;
+	        }
+
+	        return fileName;
+
+	    } catch (Exception e) {
+	        return defaultName;
+	    }
+	}
 }
