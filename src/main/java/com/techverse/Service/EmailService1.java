@@ -44,7 +44,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service; 
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine; 
+import org.thymeleaf.spring5.SpringTemplateEngine;
+
+import com.techverse.Model.EmailType;
+
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
  
@@ -85,7 +88,7 @@ public class EmailService1 {
      
      
    
-
+//use for general admission form
      /**
       * Sends an email asynchronously using JavaMailSender.
       * @param recipientEmail the recipient's email address
@@ -94,44 +97,102 @@ public class EmailService1 {
       * @return CompletableFuture indicating success (true) or failure (false)
       */
      @Async
-     public CompletableFuture<Boolean> sendEmail(String recipientEmail, String emailSubject, String emailBody) {
+     public CompletableFuture<Boolean> sendEmail(
+             String recipientEmail,
+             String emailSubject,
+             String emailBody,
+             EmailType emailType
+     ) {
          try {
-        	 System.out.println(recipientEmail);
-             // Create a MimeMessage
-             MimeMessage message = emailSender.createMimeMessage();
-             MimeMessageHelper helper = new MimeMessageHelper(message, true);
+             System.out.println(recipientEmail);
 
-             // Set the email details
-             helper.setFrom("info@pragyagirlsschool.com");  // Sender's email
-             helper.setTo(recipientEmail);              // Recipient's email
-             helper.setSubject(emailSubject);           // Subject
-             helper.setText(emailBody, true);           // HTML email body
-             
-             
-            	 System.out.println("hi send connect");
-             ClassPathResource image1 = new ClassPathResource("static/images/logo.png");
-             ClassPathResource image3 = new ClassPathResource("static/images/fb.png");
-             ClassPathResource image4 = new ClassPathResource("static/images/insta.png");
-             ClassPathResource image2 = new ClassPathResource("static/images/thankyou.png");
-             
-             helper.addInline("logoImage", image1);  // 'logoImage' will be the content ID (cid) in the email body
-             helper.addInline("thankyouImage", image2);
-             helper.addInline("fbImage", image3);
-             helper.addInline("instaImage", image4);
-               
-             // Send the email
+             MimeMessage message = emailSender.createMimeMessage();
+
+             MimeMessageHelper helper = new MimeMessageHelper(
+                     message,
+                     MimeMessageHelper.MULTIPART_MODE_RELATED,
+                     "UTF-8"
+             );
+
+             helper.setFrom("info@pragyagirlsschool.com");
+             helper.setTo(recipientEmail);
+             helper.setSubject(emailSubject);
+             helper.setText(emailBody, true);
+
+             addInlineImages(helper, emailType);
+
              emailSender.send(message);
-             System.out.println("hi send");
-             return CompletableFuture.completedFuture(true);  // Successfully sent
-         } catch (MessagingException e) {
+
+             System.out.println("Email sent successfully");
+             return CompletableFuture.completedFuture(true);
+
+         } catch (Exception e) {
              e.printStackTrace();
-             return CompletableFuture.completedFuture(false);  // Failure
+             return CompletableFuture.completedFuture(false);
          }
-     }
-  
+     }     
      
      
-    
+     
+     
+     private void addInlineImages(MimeMessageHelper helper, EmailType emailType) throws MessagingException {
+
+    	 ClassPathResource logoImage = new ClassPathResource("static/images/logo.png"); 
+ 	    ClassPathResource fbImage = new ClassPathResource("static/images/fb.png"); 
+ 	    ClassPathResource instaImage = new ClassPathResource("static/images/insta.png"); 
+ 	    ClassPathResource thankyouImage = new ClassPathResource("static/images/thankyou.png"); 
+ 	    ClassPathResource heroImage = new ClassPathResource("static/images/hero-img.webp"); 
+ 	    ClassPathResource phoneImage = new ClassPathResource("static/images/phone.webp"); 
+ 	    ClassPathResource emailImage = new ClassPathResource("static/images/email.webp"); 
+ 	    ClassPathResource otpHeroImage = new ClassPathResource("static/images/otp-email-hero.webp");
+ 	    
+
+    	    switch (emailType) {
+
+    	    
+    	 
+    	   
+    	        case OTP:  	            
+    	            helper.addInline("logoImage", logoImage);
+    	            helper.addInline("otpheroImage", otpHeroImage);
+    	            helper.addInline("fbImage", fbImage);
+    	            helper.addInline("instaImage", instaImage);
+    	   
+    	            break;
+
+    	        case THANK_YOU:
+    	            
+    	            break;
+
+    	        case ADMISSION_ENQUIRY_ADMIN:
+    	        case ADMISSION_ENQUIRY_PARENT:
+    	        	helper.addInline("logoImage", logoImage);
+    	        	helper.addInline("heroImage", heroImage);
+      	            helper.addInline("phoneImage", phoneImage);
+      	            helper.addInline("emailImage", emailImage);
+    	            break;
+    	        case  ADMISSION_ENQUIRY_SCHOOL:
+    	        	helper.addInline("logoImage", logoImage);    
+      	            helper.addInline("phoneImage", phoneImage);
+      	            helper.addInline("emailImage", emailImage); 
+    	        	break;
+    	        
+
+    	        default:
+    	            break;
+    	    }
+    	}
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
      
       
      //old use
@@ -207,6 +268,8 @@ public class EmailService1 {
 	 
 	*/
 	
+     
+     
 	public boolean sendEmail1(String recipientEmail, String emailSubject, String emailBody, String imagePath) {
 	    Properties props = new Properties();
 	    props.put("mail.smtp.host", host);
@@ -259,6 +322,9 @@ public class EmailService1 {
 	    }
 	}
 
+	
+	
+	//use for advance admission form section
 	@Async
 	public CompletableFuture<Boolean> sendEmailWithAttachment(String recipientEmail, String emailSubject, String emailBody,
 	                                                          String birthCertificate, String birthCertificatefile,String lastResult,String lastResultfile,

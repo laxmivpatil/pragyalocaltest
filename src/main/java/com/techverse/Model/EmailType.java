@@ -1,0 +1,13 @@
+package com.techverse.Model;
+public enum EmailType {
+    OTP,
+    THANK_YOU,
+    ADMISSION_ENQUIRY_PARENT,
+    ADMISSION_ENQUIRY_ADMIN,
+    ADMISSION_ENQUIRY_SCHOOL,
+    CONTACT_PARENT,
+    CONTACT_SCHOOL,
+    CAREER_SCHOOL,
+    CAREER_USER,
+    ENQUIRY
+}

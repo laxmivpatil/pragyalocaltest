@@ -8,12 +8,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.techverse.Model.AdmissionEnquiry;
+import com.techverse.Model.EmailType;
 import com.techverse.Repository.AdmissionEnquiryRepository;
 import com.techverse.Service.ApiResponseService;
 import com.techverse.Service.EmailService1;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -64,19 +66,24 @@ public class AdmissionEnquiryController {
                 email,
                 new OtpData(otp, Instant.now().plusSeconds(300), false)
         );
+ 
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("email", email);
+        variables.put("otp1", String.valueOf(otp.charAt(0)));
+        variables.put("otp2", String.valueOf(otp.charAt(1)));
+        variables.put("otp3", String.valueOf(otp.charAt(2)));
+        variables.put("otp4", String.valueOf(otp.charAt(3)));
+      
+        String userBody = emailService1.generateEmailContent("send_otp", variables);
 
-        String body = "<h2>Pragya Girls School Enquiry OTP</h2>"
-                + "<p>Your OTP for admission enquiry verification is:</p>"
-                + "<h1 style='letter-spacing:3px'>" + otp + "</h1>"
-                + "<p>This OTP is valid for 5 minutes.</p>";
-        System.out.println(body);
-/*
-        emailService1.sendEmail(
+
+       sendEmailAsync(
                 email,
-                "Your OTP for Admission Enquiry",
-                body
+                "Your OTP for Email Verification",
+                userBody,
+                EmailType.OTP
         );
-*/
+
         return apiResponseService.apiResponseService(true, "OTP has been sent to your email address "+otp);
         
         
@@ -233,28 +240,35 @@ public class AdmissionEnquiryController {
         variables.put("city", city);
         variables.put("email", email);
         variables.put("comments", comments);
+/*
+       String schoolBody = emailService1.generateEmailContent("admission_enquiry_administration_mail", variables);
+       String userBody = emailService1.generateEmailContent("admission_enquiry_parent_mail", variables);
 
-       // String schoolBody = emailService1.generateEmailContent("schooladmissionenquiry", variables);
-        //String userBody = emailService1.generateEmailContent("useradmissionenquiry", variables);
-
-     /*   emailService1.sendEmail(
+       sendEmailAsync(
                 "info@pragyagirlsschool.com",
                 "New Admission Enquiry - " + studentFullName,
-                schoolBody
+                schoolBody,EmailType.ADMISSION_ENQUIRY_SCHOOL
         );
 
-        emailService1.sendEmail(
+       sendEmailAsync(
                 email,
                 "Your Admission Enquiry Has Been Received",
-                userBody
+                userBody,
+                EmailType.ADMISSION_ENQUIRY_PARENT
         );
         
-        */
+      */  
         return apiResponseService.apiResponseService(true, "Enquiry Saved successfully",enquiry);
 
          
     }
 
+    
+    @Async("taskExecutor")
+	public void sendEmailAsync(String to, String subject, String body, EmailType type) {
+
+		emailService1.sendEmail(to, subject, body,type);
+	}
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }

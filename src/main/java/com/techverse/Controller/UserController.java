@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody; 
 import org.springframework.web.bind.annotation.RequestParam; 
 import org.springframework.web.bind.annotation.RestController;
- 
 
- 
+import com.techverse.Model.EmailType;
 import com.techverse.Model.UserForm;
 import com.techverse.Repository.UserFormRepository;
 import com.techverse.Response.ApiResponse;
@@ -138,13 +137,12 @@ public class UserController {
         String userBody = emailService1.generateEmailContent("userEmailTemplate", variables);
 
         // Send emails asynchronously
-        sendEmailAsync(schoolEmail, "Contact Us Request", schoolBody);
-        sendEmailAsync(userForm.getEmail(), "Your Message to Pragya School", userBody);
-
+        sendEmailAsync(schoolEmail, "Contact Us Request", schoolBody,EmailType.CONTACT_SCHOOL);
+        sendEmailAsync(userForm.getEmail(), "Your Message to Pragya School", userBody,EmailType.CONTACT_PARENT);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    
+    /*
     @GetMapping("/create")
     public ResponseEntity<Void> createUser(
         @RequestParam String fullName,
@@ -175,17 +173,17 @@ public class UserController {
         ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.OK);
 
         // Send emails asynchronously
-      sendEmailAsync(schoolEmail, "Contact Us Request", schoolBody);
-        sendEmailAsync(email, "Your Message to Pragya School", userBody);
+      sendEmailAsync(schoolEmail, "Contact Us Request", schoolBody,EmailType.CONTACT_SCHOOL);
+        sendEmailAsync(email, "Your Message to Pragya School", userBody,EmailType.CONTACT_PARENT);
        
         return response;
     }
-
+*/
     @Async("taskExecutor")
-    public void sendEmailAsync(String to, String subject, String body) {
+    public void sendEmailAsync(String to, String subject, String body,EmailType type) {
     	 
         
-        emailService1.sendEmail(to, subject, body);
+        emailService1.sendEmail(to, subject, body,type);
     }
 
     

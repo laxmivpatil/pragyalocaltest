@@ -3,6 +3,7 @@ package com.techverse.Controller;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.techverse.Model.CareerApplication;
+import com.techverse.Model.EmailType;
 import com.techverse.Repository.CareerApplicationRepository;
+import com.techverse.Service.ApiResponseService;
 import com.techverse.Service.EmailService1;
 import com.techverse.Service.StorageSevice;
  
@@ -21,6 +24,9 @@ import com.techverse.Service.StorageSevice;
 @RequestMapping("/api/career")
 @CrossOrigin(origins = "http://localhost:5000", allowCredentials = "true")
 public class CareerApplicationController {
+	
+	 @Autowired
+	    private ApiResponseService apiResponseService;
 
     @Autowired
     private CareerApplicationRepository careerApplicationRepository;
@@ -42,21 +48,26 @@ public class CareerApplicationController {
 
         try {
             if (fullName == null || fullName.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body("Full name is required");
+                 return apiResponseService.apiResponseService(false, "Full name is required");
+
             }
 
             if (email == null || email.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body("Email is required");
+                 return apiResponseService.apiResponseService(false, "Email is required");
+
             }
 
             if (position == null || position.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body("Position is required");
+                 return apiResponseService.apiResponseService(false, "Position is required");
+
             }
 
             if (resume == null || resume.isEmpty()) {
-                return ResponseEntity.badRequest().body("Resume file is required");
-            }
+                return apiResponseService.apiResponseService(false, "Resume file is required");
 
+          
+            }
+/*
             String resumeUrl = "";
             String extension = getExtension(resume);
 
@@ -68,6 +79,9 @@ public class CareerApplicationController {
             );
 
             
+            
+            
+            
          // For email attachment
             byte[] resumeBytes = resume.getBytes();
             CareerApplication application = new CareerApplication(
@@ -76,9 +90,28 @@ public class CareerApplicationController {
                     position,
                     resumeUrl
             );
+*/
+            
+            String extension = getExtension(resume);
+            String resumeName = "Resume_" + fullName.replaceAll("\\s+", "_") + "_" + Instant.now().toEpochMilli();
 
+            // ✅ Save application first with placeholder URL
+            CareerApplication application = new CareerApplication(fullName, email, position, "");
             careerApplicationRepository.save(application);
 
+            // ✅ Upload async — don't block the response
+            byte[] resumeBytes = resume.getBytes(); // Read once before async
+            CompletableFuture.runAsync(() -> {
+                try {
+                    String resumeUrl = storageService.uploadFileOnAzure(resume, resumeName + "." + extension);
+                    // Update URL after upload
+                    application.setResume(resumeUrl);
+                    careerApplicationRepository.save(application);
+                } catch (Exception e) {
+                    System.err.println("Async upload failed: " + e.getMessage());
+                }
+            });
+ 
             Map<String, Object> variables = new HashMap<>();
 
             variables.put("fullName", fullName);
@@ -88,7 +121,7 @@ public class CareerApplicationController {
             String schoolBody = emailService1.generateEmailContent("schoolcareerapplication", variables);
             String userBody = emailService1.generateEmailContent("usercareerapplication", variables);
            //email to school for new application  change email to school email
-            emailService1.sendCareerEmailWithResumeAsync(
+          /*  emailService1.sendCareerEmailWithResumeAsync(
                     email,
                     "New Career Application - " + position,
                     schoolBody,
@@ -99,10 +132,12 @@ public class CareerApplicationController {
             emailService1.sendEmail(
                     email,
                     "Your Career Application Has Been Received",
-                    userBody
+                    userBody, EmailType.CAREER_USER
             );
-            return new ResponseEntity<>(application, HttpStatus.OK);
-
+            
+            */
+          return  apiResponseService.apiResponseService(true, "Career application Saved successfully",application);
+      
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)

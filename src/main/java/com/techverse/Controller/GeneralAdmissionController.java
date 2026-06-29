@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.razorpay.Order;
+import com.techverse.Model.EmailType;
 import com.techverse.Model.GeneralAdmission;
 import com.techverse.Repository.GeneralAdmissionRepository;
 import com.techverse.Response.GeneralAdmissionResponse;
@@ -723,7 +724,7 @@ public class GeneralAdmissionController {
 	            String schoolBody = emailService1.generateEmailContent("schoolgeneraladmission", variables);
 	            String userBody = emailService1.generateEmailContent("usergeneraladmission", variables);
 
-	          //  sendEmailAsync(schoolEmail, "New General Admission Enquiry", schoolBody);
+	          // sendEmailAsync(schoolEmail, "New General Admission Enquiry", schoolBody);
 	          //  sendEmailAsync(email, "Your Admission Enquiry", userBody);
 
 	            Map<String, Object> data = new HashMap<>();
@@ -953,9 +954,9 @@ public class GeneralAdmissionController {
 	    
 	}
 	@Async("taskExecutor")
-	public void sendEmailAsync(String to, String subject, String body) {
+	public void sendEmailAsync(String to, String subject, String body,EmailType type) {
 
-		emailService1.sendEmail(to, subject, body);
+		emailService1.sendEmail(to, subject, body ,type);
 	}
 
 	@Async("taskExecutor")
@@ -996,7 +997,7 @@ public class GeneralAdmissionController {
 		variables.put("subject", "connect form");
 		variables.put("city", "connect form");
 		String schoolBody = emailService1.generateEmailContent("schoolEmailTemplate", variables);
-		sendEmailAsync("laxmipatil070295@gmail.com", "Contact Form", schoolBody);
+		sendEmailAsync("laxmipatil070295@gmail.com", "Contact Form", schoolBody,EmailType.OTP);
 
 		return "hello";
 	}

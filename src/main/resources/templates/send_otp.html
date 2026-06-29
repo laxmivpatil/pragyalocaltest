@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OTP Verification</title>
+	<link href="https://fonts.cdnfonts.com/css/gilroy-bold" rel="stylesheet">
+</head>
+
+<body style="margin:0;padding:0;background-color:#f3f3f3;font-family:'Gilroy-Regular',sans-serif;">
+	<table width="600" cellpadding="0" cellspacing="0" border="0" align="center" style="max-width:600px; width:100%; background-color:#ffffff; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.05);" bgcolor="#ffffff">
+		<tr>
+			<td style="text-align:center;padding:20px 20px 30px;">
+				<img src="cid:logoImage" alt="Pragya Girls School" width="154">
+			</td>
+		</tr>
+
+		<!-- Banner -->
+		<tr>
+			<td>
+				<img src="cid:otpheroImage" alt="OTP Verification Banner" style="width:100%;border-radius:24px;display:block;">
+			</td>
+		</tr>
+
+		<!-- Content -->
+		<tr>
+			<td style="padding:35px 40px;color:#222">
+				<h2 style="margin:0 0 10px;font-size:22px;font-weight:600;">Dear User,</h2>
+				<p style="margin:0;font-size:16px;line-height:24px;color:#555">
+					Here is your One Time Password (OTP).<br>
+					Please enter this code to verify your email address for Circo.
+				</p>
+
+				<!-- OTP -->
+				<table style="margin:35px auto" cellspacing="12">
+	<tr>
+		<td style="width:60px;height:60px;background:rgba(137, 44, 220, 0.05);border-radius:8px;text-align:center;font-size:32px;font-weight: bold;color: #1f2d2d" th:text="${otp1}">5</td>
+		<td style="width:60px;height:60px;background:rgba(137, 44, 220, 0.05);border-radius:8px;text-align:center;font-size:32px;font-weight: bold;color: #1f2d2d" th:text="${otp2}">7</td>
+		<td style="width:60px;height:60px;background:rgba(137, 44, 220, 0.05);border-radius:8px;text-align:center;font-size:32px;font-weight: bold;color: #1f2d2d" th:text="${otp3}">2</td>
+		<td style="width:60px;height:60px;background:rgba(137, 44, 220, 0.05);border-radius:8px;text-align:center;font-size:32px;font-weight: bold;color: #1f2d2d" th:text="${otp4}">0</td>
+	</tr>
+</table>
+				<p style="text-align:center;color:#444;font-size:18px;margin-top:15px;">OTP will expire in <strong>5 minutes.</strong></p>
+
+				<div style="padding-top:40px;font-size:16px;color:#444;line-height:24px;">Best Regards,<br>
+					<strong>Pragya Girls School</strong>
+				</div>
+			</td>
+		</tr>
+
+		<!-- Divider -->
+		<tr>
+			<td>
+				<div style="border-top:1px solid rgba(0, 0, 0, 0.1);margin:0 20px;"></div>
+			</td>
+		</tr>
+
+		<!-- Footer -->
+		<tr>
+			<td style="text-align:center;padding:0 30px 30px;color:#333;">
+				<h3 style="margin:30px 0 15px;font-size:16px;font-weight:600;">Contact info</h3>
+				<p style="margin:6px 0;font-size:16px;line-height:24px">info@pragyagirlsschool.com</p>
+				<p style="margin:6px 0;font-size:16px;line-height:24px"><strong>0731-2847332, 0731-2492431</strong></p>
+
+				<br>
+
+				<p style="margin:6px 0;font-size:16px;line-height:24px">
+				Bhicholi Mardana<br>
+				Indore, Madhya Pradesh
+				</p>
+
+				<div style="margin:25px 0">
+					<a href="#" style="color:#444;text-decoration:underline;">Unsubscribe</a>
+				</div>
+
+				<!-- Social Icons -->
+				<div style="margin-top:35px">
+					<a href="https://www.facebook.com/PragyaGS/" target="_blank" style="color:#555;text-decoration:none"><img src="cid:fbImage"  alt="Facebook" style="width:24px;margin: 0 10px;height:22px"></a>
+					<a href="https://www.instagram.com/pragyagirlsschool_indore/" target="_blank" style="color:#555;text-decoration:none"><img src="cid:instaImage"  alt="Instagram" style="width:24px;margin: 0 10px;height:22px"></a>
+				</div>
+
+				<div style="text-align:center;padding-top:25px">
+					<img  src="cid:logoImage" alt="Pragya Girls School">
+				</div>
+
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
